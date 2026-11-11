@@ -26,6 +26,7 @@
  **************************************************************************/
 #include "miniz.h"
 #include <errno.h>
+#include <unistd.h>
 
 #ifndef MINIZ_NO_ARCHIVE_APIS
 
@@ -1096,8 +1097,15 @@ static int mz_stat64(const char *path, struct __stat64 *buffer)
     static size_t mz_zip_file_read_func(void *pOpaque, mz_uint64 file_ofs, void *pBuf, size_t n)
     {
         mz_zip_archive *pZip = (mz_zip_archive *)pOpaque;
+
+        if(feof(pZip->m_pState->m_pFile))
+            printf("feof %d\n", feof(pZip->m_pState->m_pFile));
+        if(ferror(pZip->m_pState->m_pFile))
+            printf("ferror %d\n", ferror(pZip->m_pState->m_pFile));
+        if(ftell(pZip->m_pState->m_pFile))
+            printf("ftell %ld\n", ftell(pZip->m_pState->m_pFile));
+
         mz_int64 cur_ofs = MZ_FTELL64(pZip->m_pState->m_pFile);
-        fprintf(stderr, "MZ_FTELL64 errno : %d\n\n\n", errno);
 
         file_ofs += pZip->m_pState->m_file_archive_start_ofs;
 
